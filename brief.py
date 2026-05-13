@@ -1,18 +1,24 @@
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_REFRESH_TOKEN = os.getenv("GOOGLE_REFRESH_TOKEN")
 
 def send_telegram(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     requests.post(url, json={
         "chat_id": TELEGRAM_CHAT_ID,
         "text": text,
-        "parse_mode": "HTML"
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
     })
 
 def get_weather():
@@ -64,8 +70,52 @@ def get_news(query, count=2):
     except Exception as e:
         return f"ошибка: {e}"
 
+def get_calendar_events():
+    try:
+        creds = Credentials(
+            token=None,
+            refresh_token=GOOGLE_REFRESH_TOKEN,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=GOOGLE_CLIENT_ID,
+            client_secret=GOOGLE_CLIENT_SECRET
+        )
+        service = build("calendar", "v3", credentials=creds)
+        
+        tz = timezone(timedelta(hours=3))
+        now = datetime.now(tz)
+        start = now.replace(hour=0, minute=0, second=0).isoformat()
+        end = now.replace(hour=23, minute=59, second=59).isoformat()
+        
+        events_result = service.events().list(
+            calendarId="primary",
+            timeMin=start,
+            timeMax=end,
+            singleEvents=True,
+            orderBy="startTime"
+        ).execute()
+        
+        events = events_result.get("items", [])
+        
+        if not events:
+            return "📅 <b>Встречи сегодня:</b>\nСвободный день 🎉"
+        
+        lines = ["📅 <b>Встречи сегодня:</b>"]
+        for e in events:
+            start_dt = e.get("start", {}).get("dateTime", "")
+            if start_dt:
+                t = datetime.fromisoformat(start_dt).astimezone(tz)
+                time_str = t.strftime("%H:%M")
+            else:
+                time_str = "весь день"
+            title = e.get("summary", "Без названия")
+            lines.append(f"• {time_str} — {title}")
+        
+        return "\n".join(lines)
+    except Exception as e:
+        return f"📅 Встречи: ошибка ({e})"
+
 def main():
-    now = datetime.now()
+    now = datetime.now(timezone(timedelta(hours=3)))
     today = now.strftime("%d.%m.%Y")
     weekday = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"][now.weekday()]
 
@@ -74,6 +124,7 @@ def main():
     ai_news = get_news("искусственный интеллект OR artificial intelligence AI", count=2)
     telecom = get_news("телеком OR телекоммуникации OR Ростелеком OR МТС OR Билайн OR Мегафон", count=2)
     triathlon = get_news("triathlon OR ironman OR triathlete training swimming cycling running endurance", count=2)
+    calendar = get_calendar_events()
 
     msg = f"""🌅 <b>Утренний бриф — {weekday}, {today}</b>
 
@@ -96,10 +147,11 @@ def main():
 {triathlon}
 
 ━━━━━━━━━━━━━━━
-📅 <b>Встречи:</b> подключим Google Calendar следующим шагом"""
+{calendar}"""
 
     send_telegram(msg)
     print("Бриф отправлен!")
 
 if __name__ == "__main__":
     main()
+
