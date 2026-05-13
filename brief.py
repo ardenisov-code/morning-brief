@@ -45,7 +45,6 @@ def get_news(query, count=2):
         }).json()
         articles = r.get("articles", [])[:count]
         if not articles:
-            # fallback to English
             r = requests.get(url, params={
                 "q": query,
                 "language": "en",
@@ -59,7 +58,8 @@ def get_news(query, count=2):
         lines = []
         for a in articles:
             title = a["title"].split(" - ")[0].strip()
-            lines.append(f"• {title}")
+            link = a.get("url", "")
+            lines.append(f"• {title}\n  <a href='{link}'>читать →</a>")
         return "\n".join(lines)
     except Exception as e:
         return f"ошибка: {e}"
@@ -73,7 +73,7 @@ def main():
     politics = get_news("политика Россия OR Кремль OR Путин", count=3)
     ai_news = get_news("искусственный интеллект OR artificial intelligence AI", count=2)
     telecom = get_news("телеком OR телекоммуникации OR Ростелеком OR МТС OR Билайн OR Мегафон", count=2)
-    triathlon = get_news("триатлон OR triathlon OR ironman тренировки", count=2)
+    triathlon = get_news("triathlon OR ironman OR triathlete training swimming cycling running endurance", count=2)
 
     msg = f"""🌅 <b>Утренний бриф — {weekday}, {today}</b>
 
