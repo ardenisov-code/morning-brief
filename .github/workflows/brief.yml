@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests google-auth google-auth-httplib2 google-api-python-client
 
       - name: Run brief
         env:
@@ -25,4 +25,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
         run: python brief.py
