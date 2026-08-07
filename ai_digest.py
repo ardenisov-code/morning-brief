@@ -1,13 +1,10 @@
 import os
 from datetime import datetime, timezone, timedelta
 import requests
-import anthropic
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 def send_telegram(text):
@@ -57,14 +54,29 @@ def build_prompt(today_str):
 
 
 def get_digest(today_str):
-    resp = client.messages.create(
-        model="claude-sonnet-5",
-        max_tokens=2000,
-        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 8}],
-        messages=[{"role": "user", "content": build_prompt(today_str)}]
+    r = requests.post(
+        "https://api.openai.com/v1/responses",
+        headers={
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "gpt-5.4",
+            "tools": [{"type": "web_search"}],
+            "input": build_prompt(today_str)
+        },
+        timeout=120
     )
-    text_parts = [b.text for b in resp.content if b.type == "text"]
-    return "\n".join(text_parts).strip()
+    r.raise_for_status()
+    data = r.json()
+
+    out_texts = []
+    for item in data.get("output", []):
+        if item.get("type") == "message":
+            for c in item.get("content", []):
+                if c.get("type") == "output_text":
+                    out_texts.append(c.get("text", ""))
+    return "\n".join(out_texts).strip()
 
 
 def main():
