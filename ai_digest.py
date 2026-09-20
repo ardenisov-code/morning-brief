@@ -8,6 +8,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 AI_SYNTHESIS_WEEKDAY = int(os.getenv("AI_SYNTHESIS_WEEKDAY", "0"))  # Monday
+FORCE_AI = os.getenv("FORCE_AI", "0").lower() in {"1", "true", "yes"}
 
 
 def send_telegram(text):
@@ -109,15 +110,62 @@ def get_fallback_digest():
     selected = hits[:6]
     if not selected:
         return "ПУСТО"
-    lines = ["🛠 <b>Резервный выпуск: практические AI-кейсы</b>", ""]
+    lines = ["🛠 <b>Практические AI-кейсы</b>", ""]
     for _, title, url in selected:
         lines.extend([
             f"• <b>{html.escape(title)}</b>",
             f'<a href="{html.escape(url, quote=True)}">разбор / обсуждение практиков</a>',
             "",
         ])
-    lines.append("AI-синтез временно недоступен; подборка собрана напрямую из свежих публикаций.")
+    hf_items = get_huggingface_hits()
+    if hf_items:
+        lines.extend(["", "🤗 <b>Hugging Face: что сейчас набирает популярность</b>", ""])
+        for title, url, detail in hf_items:
+            lines.extend([
+                f"• <b>{html.escape(title)}</b>",
+                html.escape(detail),
+                f'<a href="{html.escape(url, quote=True)}">Hugging Face</a>',
+                "",
+            ])
+    lines.append("Подборка собрана напрямую из свежих публикаций и Hugging Face Hub.")
     return "\n".join(lines)
+
+
+def get_huggingface_hits():
+    """Pick practical items from the public HF trending APIs without paid AI."""
+    items = []
+    try:
+        models = requests.get(
+            "https://huggingface.co/api/models",
+            params={"sort": "trendingScore", "direction": "-1", "limit": 20},
+            timeout=30,
+        )
+        models.raise_for_status()
+        useful_tags = {"text-generation", "image-text-to-text", "automatic-speech-recognition", "gguf"}
+        for model in models.json():
+            tags = set(model.get("tags") or [])
+            if useful_tags.intersection(tags):
+                model_id = model.get("id")
+                detail = f"Трендовая модель; скачиваний: {model.get('downloads', 0):,}, лайков: {model.get('likes', 0)}."
+                items.append((model_id, f"https://huggingface.co/{model_id}", detail))
+                break
+
+        spaces = requests.get(
+            "https://huggingface.co/api/spaces",
+            params={"sort": "trendingScore", "direction": "-1", "limit": 20},
+            timeout=30,
+        )
+        spaces.raise_for_status()
+        practical = ("agent", "pdf", "ocr", "audio", "video", "image", "qwen", "whisper", "llm")
+        for space in spaces.json():
+            space_id = space.get("id", "")
+            if any(word in space_id.lower() for word in practical):
+                detail = f"Трендовый интерактивный Space; лайков: {space.get('likes', 0)}. Можно проверить руками в браузере."
+                items.append((space_id, f"https://huggingface.co/spaces/{space_id}", detail))
+                break
+    except Exception as e:
+        print(f"Hugging Face source unavailable: {e}")
+    return items[:2]
 
 
 def main():
@@ -125,7 +173,7 @@ def main():
     today = now.strftime("%d.%m.%Y")
 
     # Daily delivery stays useful and free; paid synthesis runs once a week.
-    if now.weekday() == AI_SYNTHESIS_WEEKDAY and OPENAI_API_KEY:
+    if (FORCE_AI or now.weekday() == AI_SYNTHESIS_WEEKDAY) and OPENAI_API_KEY:
         try:
             digest = get_digest(today)
         except Exception as e:
