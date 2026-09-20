@@ -1,4 +1,5 @@
 import os
+import html
 from datetime import datetime, timezone, timedelta
 import requests
 
@@ -15,8 +16,7 @@ def send_telegram(text):
         "parse_mode": "HTML",
         "disable_web_page_preview": True
     })
-    if not r.ok:
-        print("Telegram error:", r.text)
+    r.raise_for_status()
 
 
 def build_prompt(today_str):
@@ -83,11 +83,49 @@ def get_digest(today_str):
     return "\n".join(out_texts).strip()
 
 
+def get_fallback_digest():
+    """Return recent practitioner links when paid AI synthesis is unavailable."""
+    queries = ("Claude workflow", "local LLM", "AI automation n8n", "Garmin AI")
+    hits = []
+    seen = set()
+    for query in queries:
+        r = requests.get(
+            "https://hn.algolia.com/api/v1/search_by_date",
+            params={"query": query, "tags": "story", "hitsPerPage": 8},
+            timeout=30,
+        )
+        r.raise_for_status()
+        for item in r.json().get("hits", []):
+            title = (item.get("title") or "").strip()
+            url = item.get("url") or f"https://news.ycombinator.com/item?id={item.get('objectID')}"
+            if not title or url in seen:
+                continue
+            seen.add(url)
+            hits.append((int(item.get("points") or 0), title, url))
+    hits.sort(reverse=True)
+    selected = hits[:6]
+    if not selected:
+        return "ПУСТО"
+    lines = ["🛠 <b>Резервный выпуск: практические AI-кейсы</b>", ""]
+    for _, title, url in selected:
+        lines.extend([
+            f"• <b>{html.escape(title)}</b>",
+            f'<a href="{html.escape(url, quote=True)}">разбор / обсуждение практиков</a>',
+            "",
+        ])
+    lines.append("AI-синтез временно недоступен; подборка собрана напрямую из свежих публикаций.")
+    return "\n".join(lines)
+
+
 def main():
     now = datetime.now(timezone(timedelta(hours=3)))
     today = now.strftime("%d.%m.%Y")
 
-    digest = get_digest(today)
+    try:
+        digest = get_digest(today)
+    except Exception as e:
+        print(f"OpenAI unavailable, using source fallback: {e}")
+        digest = get_fallback_digest()
 
     if not digest or digest.strip() == "ПУСТО":
         print("Сегодня без находок — ничего не отправляю")

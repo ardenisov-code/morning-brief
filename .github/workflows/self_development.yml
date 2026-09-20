@@ -1,0 +1,19 @@
+name: Evening Self-Development Briefing
+
+on:
+  schedule:
+    # 20:00 MSK = 17:00 UTC
+    - cron: "0 17 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run briefing
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 self_development.py
