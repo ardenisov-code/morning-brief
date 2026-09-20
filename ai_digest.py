@@ -6,6 +6,8 @@ import requests
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+AI_SYNTHESIS_WEEKDAY = int(os.getenv("AI_SYNTHESIS_WEEKDAY", "0"))  # Monday
 
 
 def send_telegram(text):
@@ -65,8 +67,9 @@ def get_digest(today_str):
             "Content-Type": "application/json"
         },
         json={
-            "model": "gpt-5.4",
+            "model": OPENAI_MODEL,
             "tools": [{"type": "web_search"}],
+            "max_output_tokens": 1200,
             "input": build_prompt(today_str)
         },
         timeout=120
@@ -121,10 +124,15 @@ def main():
     now = datetime.now(timezone(timedelta(hours=3)))
     today = now.strftime("%d.%m.%Y")
 
-    try:
-        digest = get_digest(today)
-    except Exception as e:
-        print(f"OpenAI unavailable, using source fallback: {e}")
+    # Daily delivery stays useful and free; paid synthesis runs once a week.
+    if now.weekday() == AI_SYNTHESIS_WEEKDAY and OPENAI_API_KEY:
+        try:
+            digest = get_digest(today)
+        except Exception as e:
+            print(f"OpenAI unavailable, using source fallback: {e}")
+            digest = get_fallback_digest()
+    else:
+        print("Scheduled source-only day; skipping OpenAI")
         digest = get_fallback_digest()
 
     if not digest or digest.strip() == "ПУСТО":
