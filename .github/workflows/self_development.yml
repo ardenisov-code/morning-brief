@@ -6,14 +6,34 @@ on:
     - cron: "0 17 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+concurrency:
+  group: evening-self-development
+  cancel-in-progress: false
+
 jobs:
   send-briefing:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: pip install requests
+
       - name: Run briefing
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
         run: python3 self_development.py
+
+      - name: Save completed topic history
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add evening_history.json || true
+          git diff --cached --quiet || git commit -m "chore: evening briefing history $(date +%F)"
+          git push

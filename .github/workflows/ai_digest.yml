@@ -4,15 +4,13 @@ on:
   schedule:
     - cron: '30 3 * * *'
   workflow_dispatch:
-    inputs:
-      force_ai:
-        description: "Force paid AI synthesis for a test run"
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: write
+
+concurrency:
+  group: ai-digest
+  cancel-in-progress: false
 
 jobs:
   send-digest:
@@ -34,13 +32,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
-          FORCE_AI: ${{ inputs.force_ai && '1' || '0' }}
         run: python ai_digest.py
 
       - name: Commit digest to repo
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-          git add digests/ || true
+          git add digests/ ai_seen.json || true
           git diff --cached --quiet || git commit -m "chore: ai digest $(date +%F)"
           git push
