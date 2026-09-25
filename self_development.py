@@ -6,7 +6,7 @@ import os
 import sys
 import time
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -20,6 +20,7 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 HISTORY_PATH = Path("evening_history.json")
+MSK = timezone(timedelta(hours=3))
 
 
 def send_telegram(text: str) -> bool:
@@ -133,7 +134,7 @@ def fallback_briefing(today: date, session: dict[str, str]) -> str:
 
 
 def main() -> None:
-    today = date.today()
+    today = datetime.now(MSK).date()
     history = load_history()
     session = choose_session(today, history)
     print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting evening briefing: {session['title']}", flush=True)
