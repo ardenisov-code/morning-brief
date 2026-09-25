@@ -3,6 +3,7 @@
 import html
 import json
 import os
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -119,6 +120,7 @@ def huggingface_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
             {
                 "source": "Hugging Face",
                 "title": model_id,
+                "model_id": model_id,
                 "url": url,
                 "signal": f"trending {model.get('trendingScore', 0)}, downloads {downloads}, likes {likes}",
                 "context": (
@@ -128,11 +130,26 @@ def huggingface_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
                 ),
             }
         )
-    return sorted(
+    ranked = sorted(
         candidates,
         key=lambda item: int(item["signal"].split("downloads ")[1].split(",")[0]),
         reverse=True,
     )
+    for candidate in ranked[:6]:
+        try:
+            candidate["context"] = model_card_excerpt(candidate["model_id"], candidate["context"])
+        except requests.RequestException as exc:
+            print(f"Model card fetch failed for {candidate['model_id']}: {exc}")
+        candidate.pop("model_id", None)
+    return ranked
+
+
+def model_card_excerpt(model_id: str, fallback: str) -> str:
+    response = requests.get(f"https://huggingface.co/{model_id}/raw/main/README.md", timeout=8)
+    response.raise_for_status()
+    text = re.sub(r"<[^>]+>", " ", response.text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text[:3500] if text else fallback
 
 
 def huggingface_paper_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
@@ -217,12 +234,16 @@ def rank_and_translate(today: str, candidates: list[dict[str, str]]) -> str:
 <b>AI: на острие - ДД.ММ</b>
 <b>1. Переведённый и понятный заголовок</b> <i>Оценка: X/10</i>
 Что это: 1-2 конкретных предложения простым естественным русским языком.
+Доказательство: одна конкретная проверяемая деталь из карточки, исследования или метрик источника.
 Почему это вау: какое принципиально новое действие, скорость, качество или масштаб это открывает.
 Почему именно Артему: применимость для продукта, бизнеса или личной AI-системы.
 Первый шаг: одно проверяемое действие до 20 минут.
 <a href="ТОЧНЫЙ_URL_ИЗ_КАНДИДАТОВ">Источник: ...</a>
 
 Не выдумывай факты, URLs или оценки и не делай выводов о безопасности, качестве или эффективности без фактов.
+Если в контексте нет конкретной проверяемой детали, отбрасывай кандидата. Не называй модель мультимодальной,
+агентной, быстрой или лучшей, если это прямо не подтверждено контекстом. Не пиши общие фразы вроде
+"улучшит процессы", "новые горизонты" или "значительно расширяет возможности".
 Не используй кальки вроде "аддитив" или "версия для хранения". URL обязан совпасть с одним из входных кандидатов.
 Если ни один кандидат не заслуживает отправки, верни ровно: SKIP"""
 
