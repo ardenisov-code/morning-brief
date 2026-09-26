@@ -7,6 +7,8 @@
     "https://huggingface.co/Qwen/Qwen3.8-27B",
     "https://huggingface.co/XiaomiMiMo/MiMo-V2.6-Pro-RL",
     "https://huggingface.co/Qwen/Qwen3.8-Flash-Next",
-    "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"
+    "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash",
+    "https://huggingface.co/Cactus-Compute/needle3",
+    "https://huggingface.co/nvidia/Nemotron-3-Diarization"
   ]
 }
