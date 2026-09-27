@@ -6,6 +6,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
 
@@ -325,6 +326,39 @@ def rank_and_translate(today: str, candidates: list[dict[str, str]], seen_urls: 
         timeout=90,
     )
     response.raise_for_status()
+    draft = normalize_links(response_text(response.json()).strip())
+    if draft == "SKIP":
+        return draft
+    return quality_gate_draft(draft, candidates)
+
+
+def quality_gate_draft(draft: str, candidates: list[dict[str, str]]) -> str:
+    """Remove category mistakes that a web-searching editor can introduce."""
+    allowed_skill_urls = [item["url"] for item in candidates if item.get("track") == "skill"]
+    instructions = """Ты строгий редактор качества Telegram-подборки. Верни только исправленный валидный HTML.
+Не добавляй новых ссылок, фактов или пунктов. Удали весь пункт, если он нарушает хотя бы одно правило:
+1. «Внешние модели / автоматизация»: только рабочая задача руководителя, не потребительский кейс.
+2. «Внутренний контур / автоматизация»: только локальный, self-hosted или Ollama/n8n сценарий без отправки
+   рабочих данных в Claude, ChatGPT, GPT-4, Gemini или другую внешнюю модель. Если этого явно нет, удалить.
+3. «Скиллы для своей LLM»: только URL из разрешённого списка GitHub-артефактов. Статья, workflow-template,
+   use case или интеграция не считаются скиллом.
+Сохрани максимум два пункта на рубрику. Удали пустые рубрики. Ссылки только <a href="URL">источник</a>.
+Если ничего не осталось, верни ровно SKIP."""
+    response = requests.post(
+        "https://api.openai.com/v1/responses",
+        headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": OPENAI_MODEL,
+            "instructions": instructions,
+            "input": (
+                f"Разрешённые URL скиллов: {json.dumps(allowed_skill_urls, ensure_ascii=False)}\n"
+                f"Черновик:\n{draft}"
+            ),
+            "max_output_tokens": 1500,
+        },
+        timeout=90,
+    )
+    response.raise_for_status()
     return normalize_links(response_text(response.json()).strip())
 
 
@@ -340,11 +374,22 @@ def digest_links(digest: str) -> set[str]:
 
 def normalize_links(digest: str) -> str:
     """Models occasionally return Markdown links despite an HTML-only Telegram contract."""
-    return re.sub(
+    digest = re.sub(
         r"\s*\(\[[^\]]+\]\((https?://[^)]+)\)\)",
         lambda match: f'\n<a href="{html.escape(match.group(1), quote=True)}">источник</a>',
         digest,
     )
+    return re.sub(
+        r'href="([^"]+)"',
+        lambda match: f'href="{html.escape(clean_url(match.group(1)), quote=True)}"',
+        digest,
+    )
+
+
+def clean_url(url: str) -> str:
+    parts = urlsplit(url)
+    query = [(key, value) for key, value in parse_qsl(parts.query) if not key.lower().startswith("utm_")]
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
 def main() -> None:
