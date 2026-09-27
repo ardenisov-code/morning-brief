@@ -12,6 +12,9 @@
     "https://huggingface.co/nvidia/Nemotron-3-Diarization",
     "https://news.ycombinator.com/item?id=49856149",
     "https://github.com/anthropics/skills",
-    "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-mlx-2bit"
+    "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-mlx-2bit",
+    "https://news.ycombinator.com/item?id=49858513",
+    "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B",
+    "https://huggingface.co/StarDoc-AI/TeleOCR"
   ]
 }
