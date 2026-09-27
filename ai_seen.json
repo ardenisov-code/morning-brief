@@ -24,6 +24,8 @@
     "https://support.claude.com/en/articles/14729354-use-analytics-chat-to-ask-claude-about-usage?utm_source=openai",
     "https://github.com/obra/superpowers",
     "https://github.com/affaan-m/ECC",
-    "https://github.com/mattpocock/skills"
+    "https://github.com/mattpocock/skills",
+    "https://linuxcore.dev/homelab/n8n-ollama-automation/",
+    "https://n8n.io/workflows/5148-local-chatbot-with-retrieval-augmented-generation-rag/"
   ]
 }
