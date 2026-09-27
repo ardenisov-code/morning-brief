@@ -237,8 +237,55 @@ def github_skill_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
     return candidates
 
 
+def curated_personal_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
+    """Seed the digest with concrete life-improvement cases, not generic model news."""
+    items = [
+        {
+            "source": "Garmin School",
+            "track": "external",
+            "title": "Claude + Garmin: разбор тренировочных данных",
+            "url": "https://garmin.vaw.be/en/community/day-38-replace-your-personal-trainer-with-claude-ai",
+            "signal": "practitioner training workflow",
+            "context": "A practitioner uses exported Garmin data with Claude to build and revise a multi-month running plan.",
+        },
+        {
+            "source": "Tom's Guide",
+            "track": "external",
+            "title": "Claude как жёсткий weekly review",
+            "url": "https://www.tomsguide.com/ai/i-use-the-mirror-system-with-claude-to-run-my-weekly-review-heres-how-it-works",
+            "signal": "practitioner productivity workflow",
+            "context": "A personal weekly-review workflow uses Claude to identify recurring gaps, avoidance patterns and priorities.",
+        },
+        {
+            "source": "Tom's Guide",
+            "track": "external",
+            "title": "Утренний дайджест из личных рассылок через Claude",
+            "url": "https://www.tomsguide.com/ai/claude/i-let-claude-read-all-my-newsletters-for-me-now-i-wake-up-to-a-2-minute-ai-briefing",
+            "signal": "practitioner personal knowledge workflow",
+            "context": "A practitioner uses Claude email connector and scheduled tasks to distill newsletters into a two-minute morning brief.",
+        },
+        {
+            "source": "LinuxCore",
+            "track": "internal",
+            "title": "Личный Telegram-ассистент на n8n + Ollama",
+            "url": "https://linuxcore.dev/homelab/n8n-ollama-automation/",
+            "signal": "self-hosted personal assistant workflow",
+            "context": "A self-hosted n8n and Ollama workflow powers a Telegram assistant through a local LLM.",
+        },
+        {
+            "source": "n8n",
+            "track": "internal",
+            "title": "Локальная база знаний: n8n + Ollama + Qdrant",
+            "url": "https://n8n.io/workflows/5148-local-chatbot-with-retrieval-augmented-generation-rag/",
+            "signal": "official local RAG workflow",
+            "context": "Official n8n workflow template for a fully local RAG chatbot with n8n, Ollama and Qdrant.",
+        },
+    ]
+    return [item for item in items if item["url"] not in seen_urls]
+
+
 def collect_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
-    candidates: list[dict[str, str]] = []
+    candidates = curated_personal_candidates(seen_urls)
     try:
         candidates.extend(github_skill_candidates(seen_urls)[:6])
     except requests.RequestException as exc:
