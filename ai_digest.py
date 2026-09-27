@@ -258,6 +258,10 @@ def rank_and_translate(today: str, candidates: list[dict[str, str]], seen_urls: 
 
     instructions = """Ты редактор ежедневной AI-подборки для Артема Денисова, руководителя продукта и бизнеса.
 Используй web search, чтобы найти реальные, уже опробованные кейсы из публикаций практиков за последние 12 месяцев.
+Сначала обязательно ищи отдельно: (1) "Claude Cowork workflow business case" или "ChatGPT team reporting automation case study";
+(2) "n8n Ollama local AI agent workflow" или "self hosted local LLM business automation case study".
+Не заменяй второй поиск n8n-шаблоном, который вызывает GPT, Claude, Gemini или иной облачный API.
+Для скиллов используй переданный список GitHub-кандидатов.
 Нужны не новости, не релизы моделей, не исследования и не техническая глубина. Нужны готовые, понятные,
 практические решения, которые можно взять и проверить завтра: сценарии с Claude/Cowork/ChatGPT/Gemini,
 автоматизации с n8n, локальные агенты с Ollama и готовые скиллы для собственной LLM.
@@ -307,6 +311,7 @@ def rank_and_translate(today: str, candidates: list[dict[str, str]], seen_urls: 
 Ссылки ОБЯЗАТЕЛЬНО оформляй только как HTML <a href="URL">источник</a>; не используй Markdown-ссылки,
 квадратные скобки или URL с utm_source=openai. Для рубрики «Скиллы» используй только URL репозитория из
 переданного списка кандидатов. Если такого скилла нет, не показывай эту рубрику.
+Никогда не оборачивай ответ в ``` или ```html.
 Если нечего отправить, верни ровно SKIP."""
 
     response = requests.post(
@@ -343,6 +348,7 @@ def quality_gate_draft(draft: str, candidates: list[dict[str, str]]) -> str:
 3. «Скиллы для своей LLM»: только URL из разрешённого списка GitHub-артефактов. Статья, workflow-template,
    use case или интеграция не считаются скиллом.
 Сохрани максимум два пункта на рубрику. Удали пустые рубрики. Ссылки только <a href="URL">источник</a>.
+Не используй Markdown и не оборачивай ответ в ``` или ```html.
 Если ничего не осталось, верни ровно SKIP."""
     response = requests.post(
         "https://api.openai.com/v1/responses",
@@ -374,6 +380,7 @@ def digest_links(digest: str) -> set[str]:
 
 def normalize_links(digest: str) -> str:
     """Models occasionally return Markdown links despite an HTML-only Telegram contract."""
+    digest = re.sub(r"^```(?:html)?\s*|\s*```$", "", digest.strip())
     digest = re.sub(
         r"\s*\(\[[^\]]+\]\((https?://[^)]+)\)\)",
         lambda match: f'\n<a href="{html.escape(match.group(1), quote=True)}">источник</a>',
