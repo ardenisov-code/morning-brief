@@ -25,6 +25,8 @@ def send_telegram(message: str) -> None:
         json={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"},
         timeout=30,
     )
+    if not response.ok:
+        raise RuntimeError(f"Telegram send failed ({response.status_code}): {response.text[:1000]}")
     response.raise_for_status()
 
 
@@ -382,6 +384,20 @@ def archive_digest(today: str, digest: str) -> None:
     archive.write_text(digest + "\n", encoding="utf-8")
 
 
+def telegram_safe_message(digest: str) -> str:
+    """Preserve whole HTML blocks while enforcing Telegram's 4,096-character limit."""
+    if len(digest) <= 3900:
+        return digest
+    blocks = digest.split("\n\n• ")
+    result = blocks[0]
+    for block in blocks[1:]:
+        candidate = f"{result}\n\n• {block}"
+        if len(candidate) > 3900:
+            break
+        result = candidate
+    return result
+
+
 def digest_links(digest: str) -> set[str]:
     return set(re.findall(r'<a href="([^"]+)"', html.unescape(digest)))
 
@@ -419,6 +435,7 @@ def main() -> None:
         print("No high-signal AI findings today; skipping instead of sending a raw feed.")
         return
 
+    digest = telegram_safe_message(digest)
     send_telegram(digest)
     used_urls = digest_links(digest)
     save_seen_urls(history, used_urls)
