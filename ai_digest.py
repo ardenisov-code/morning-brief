@@ -19,6 +19,31 @@ SEEN_PATH = Path("ai_seen.json")
 MSK = timezone(timedelta(hours=3))
 
 
+# These are hand-picked, inspectable instruction bundles.  Keep their copy and
+# canonical GitHub URLs deterministic: a generative editor must never rename a
+# repository or turn a GitHub URL into a non-existent domain.
+CURATED_SKILLS = (
+    {
+        "source": "Claude Office Skills",
+        "track": "skill",
+        "title": "Office skills: PDF, Excel, PowerPoint и Word",
+        "url": "https://github.com/claude-office-skills/skills",
+        "signal": "source-available SKILL.md collection",
+        "context": "A skill collection for creating and editing spreadsheets, slide decks, Word documents and PDFs with reusable SKILL.md instructions.",
+        "digest_copy": "Набор инструкций для Excel, презентаций, Word и PDF. Первый практический сценарий: поручать LLM собрать управленческий отчёт из таблицы, проверить цифры и подготовить слайды по одному стандарту.",
+    },
+    {
+        "source": "GitHub",
+        "track": "skill",
+        "title": "Knowledge management и session mining skills",
+        "url": "https://github.com/cajias/claude-skills",
+        "signal": "37 reusable SKILL.md packages",
+        "context": "A library of reusable SKILL.md packages including knowledge management, session mining and terminal workflows.",
+        "digest_copy": "Скиллы для разбора рабочих сессий, фиксации решений и поддержания базы знаний. Первый сценарий: после созвона LLM извлекает решения и открытые вопросы, обновляет Obsidian и формирует следующий шаг.",
+    },
+)
+
+
 def send_telegram(message: str) -> None:
     response = requests.post(
         f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
@@ -280,22 +305,7 @@ def curated_personal_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
             "signal": "official local RAG workflow",
             "context": "Official n8n workflow template for a fully local RAG chatbot with n8n, Ollama and Qdrant.",
         },
-        {
-            "source": "Claude Office Skills",
-            "track": "skill",
-            "title": "Office skills: PDF, Excel, PowerPoint и Word",
-            "url": "https://github.com/claude-office-skills/skills",
-            "signal": "source-available SKILL.md collection",
-            "context": "A skill collection for creating and editing spreadsheets, slide decks, Word documents and PDFs with reusable SKILL.md instructions.",
-        },
-        {
-            "source": "GitHub",
-            "track": "skill",
-            "title": "Knowledge management и session mining skills",
-            "url": "https://github.com/cajias/claude-skills",
-            "signal": "37 reusable SKILL.md packages",
-            "context": "A library of reusable SKILL.md packages including knowledge management, session mining and terminal workflows.",
-        },
+        *CURATED_SKILLS,
     ]
     return [item for item in items if item["url"] not in seen_urls]
 
@@ -441,6 +451,29 @@ def quality_gate_draft(draft: str, candidates: list[dict[str, str]]) -> str:
     return normalize_links(response_text(response.json()).strip())
 
 
+def enforce_curated_skills(digest: str, candidates: list[dict[str, str]]) -> str:
+    """Replace the skill section with canonical entries when fresh curated skills exist."""
+    fresh = [skill for skill in CURATED_SKILLS if skill["url"] in {item["url"] for item in candidates}]
+    if not fresh:
+        return digest
+
+    # A model-generated section can contain a malformed or invented repository URL.
+    # Strip it before appending the canonical, source-verified version.
+    digest = re.sub(
+        r"\n*🛠 <b>Скиллы для своей LLM</b>.*?(?=\n(?:🅰️|🅱️) <b>|\Z)",
+        "",
+        digest,
+        flags=re.DOTALL,
+    ).rstrip()
+    entries = []
+    for skill in fresh[:2]:
+        entries.append(
+            f"• <b>{skill['title']}</b>\n{skill['digest_copy']}\n"
+            f"<a href=\"{skill['url']}\">источник</a>"
+        )
+    return f"{digest}\n\n🛠 <b>Скиллы для своей LLM</b>\n\n" + "\n\n".join(entries)
+
+
 def archive_digest(today: str, digest: str) -> None:
     archive = Path("digests") / "ai" / f"{today}.html"
     archive.parent.mkdir(parents=True, exist_ok=True)
@@ -505,6 +538,7 @@ def main() -> None:
         print("No high-signal AI findings today; skipping instead of sending a raw feed.")
         return
 
+    digest = enforce_curated_skills(digest, candidates)
     digest = set_digest_date(digest, now)
     digest = telegram_safe_message(digest)
     send_telegram(digest)
