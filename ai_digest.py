@@ -280,6 +280,22 @@ def curated_personal_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
             "signal": "official local RAG workflow",
             "context": "Official n8n workflow template for a fully local RAG chatbot with n8n, Ollama and Qdrant.",
         },
+        {
+            "source": "Claude Office Skills",
+            "track": "skill",
+            "title": "Office skills: PDF, Excel, PowerPoint и Word",
+            "url": "https://github.com/claude-office-skills/skills",
+            "signal": "source-available SKILL.md collection",
+            "context": "A skill collection for creating and editing spreadsheets, slide decks, Word documents and PDFs with reusable SKILL.md instructions.",
+        },
+        {
+            "source": "GitHub",
+            "track": "skill",
+            "title": "Knowledge management и session mining skills",
+            "url": "https://github.com/cajias/claude-skills",
+            "signal": "37 reusable SKILL.md packages",
+            "context": "A library of reusable SKILL.md packages including knowledge management, session mining and terminal workflows.",
+        },
     ]
     return [item for item in items if item["url"] not in seen_urls]
 
