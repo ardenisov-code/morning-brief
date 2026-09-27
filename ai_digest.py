@@ -405,6 +405,7 @@ def digest_links(digest: str) -> set[str]:
 def normalize_links(digest: str) -> str:
     """Models occasionally return Markdown links despite an HTML-only Telegram contract."""
     digest = re.sub(r"^```(?:html)?\s*|\s*```$", "", digest.strip())
+    digest = re.sub(r"<br\s*/?>", "\n", digest, flags=re.IGNORECASE)
     digest = re.sub(
         r"\s*\(\[[^\]]+\]\((https?://[^)]+)\)\)",
         lambda match: f'\n<a href="{html.escape(match.group(1), quote=True)}">источник</a>',
