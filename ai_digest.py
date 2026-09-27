@@ -445,6 +445,11 @@ def telegram_safe_message(digest: str) -> str:
     return result
 
 
+def set_digest_date(digest: str, today: datetime) -> str:
+    header = f"<b>AI-находки дня — {today:%d.%m.%Y}</b>"
+    return re.sub(r"<b>AI-находки дня[^<]*</b>", header, digest, count=1)
+
+
 def digest_links(digest: str) -> set[str]:
     return set(re.findall(r'<a href="([^"]+)"', html.unescape(digest)))
 
@@ -474,7 +479,8 @@ def clean_url(url: str) -> str:
 def main() -> None:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         raise RuntimeError("TELEGRAM_TOKEN and TELEGRAM_CHAT_ID must be configured")
-    today = datetime.now(MSK).strftime("%d.%m")
+    now = datetime.now(MSK)
+    today = now.strftime("%d.%m")
     history = load_seen_urls()
     candidates = collect_candidates(set(history))
 
@@ -483,11 +489,12 @@ def main() -> None:
         print("No high-signal AI findings today; skipping instead of sending a raw feed.")
         return
 
+    digest = set_digest_date(digest, now)
     digest = telegram_safe_message(digest)
     send_telegram(digest)
     used_urls = digest_links(digest)
     save_seen_urls(history, used_urls)
-    archive_digest(datetime.now(MSK).date().isoformat(), digest)
+    archive_digest(now.date().isoformat(), digest)
     print(f"Ranked AI digest sent; remembered {len(used_urls)} sources.")
 
 
