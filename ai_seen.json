@@ -27,6 +27,11 @@
     "https://github.com/mattpocock/skills",
     "https://linuxcore.dev/homelab/n8n-ollama-automation/",
     "https://n8n.io/workflows/5148-local-chatbot-with-retrieval-augmented-generation-rag/",
-    "https://claude-office-skills/skills"
+    "https://claude-office-skills/skills",
+    "https://claude.com/customers/zapier-cowork-qa",
+    "https://claude.com/customers/miro-qa",
+    "https://claude.com/customers/jamf-qa",
+    "https://github.com/cajias/claude-skills",
+    "https://github.com/claude-office-skills/skills"
   ]
 }
