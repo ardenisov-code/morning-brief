@@ -503,6 +503,11 @@ def digest_links(digest: str) -> set[str]:
     return set(re.findall(r'<a href="([^"]+)"', html.unescape(digest)))
 
 
+def is_deliverable_digest(digest: str) -> bool:
+    """A heading is not a digest: only send concrete, linked findings."""
+    return bool(re.search(r"• <b>[^<]+</b>", digest) and digest_links(digest))
+
+
 def normalize_links(digest: str) -> str:
     """Models occasionally return Markdown links despite an HTML-only Telegram contract."""
     digest = re.sub(r"^```(?:html)?\s*|\s*```$", "", digest.strip())
@@ -541,6 +546,9 @@ def main() -> None:
     digest = enforce_curated_skills(digest, candidates)
     digest = set_digest_date(digest, now)
     digest = telegram_safe_message(digest)
+    if not is_deliverable_digest(digest):
+        print("AI editor produced no concrete linked findings; skipping empty digest.")
+        return
     send_telegram(digest)
     used_urls = digest_links(digest)
     save_seen_urls(history, used_urls)

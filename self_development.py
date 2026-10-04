@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One non-repeating, AI-edited evening self-development briefing."""
+"""A five-evening, non-repeating self-development plan."""
 
 import json
 import os
@@ -48,8 +48,11 @@ def load_history() -> list[dict[str, str]]:
         return []
 
 
-def save_history(history: list[dict[str, str]], session: dict[str, str], today: date) -> None:
-    items = [*history, {"date": today.isoformat(), "title": session["title"], "topic": session["topic"]}]
+def save_history(history: list[dict[str, str]], sessions: list[tuple[date, dict[str, str]]]) -> None:
+    items = [
+        *history,
+        *({"date": day.isoformat(), "title": session["title"], "topic": session["topic"]} for day, session in sessions),
+    ]
     HISTORY_PATH.write_text(
         json.dumps({"items": items[-30:]}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -65,6 +68,23 @@ def choose_session(today: date, history: list[dict[str, str]]) -> dict[str, str]
         if session["title"] not in recent_titles:
             return session
     return pool[start]
+
+
+def choose_sessions(today: date, history: list[dict[str, str]], count: int = 5) -> list[tuple[date, dict[str, str]]]:
+    """Build a five-day horizon without repeating the latest 21 topics or itself."""
+    recent_titles = {item.get("title") for item in history[-21:]}
+    result = []
+    for offset in range(count):
+        day = today + timedelta(days=offset)
+        pool = SESSIONS_BY_WEEKDAY[day.weekday()]
+        start = day.timetuple().tm_yday % len(pool)
+        for index in range(len(pool)):
+            candidate = pool[(start + index) % len(pool)]
+            if candidate["title"] not in recent_titles:
+                result.append((day, candidate))
+                recent_titles.add(candidate["title"])
+                break
+    return result
 
 
 def response_text(payload: dict) -> str:
@@ -133,16 +153,32 @@ def fallback_briefing(today: date, session: dict[str, str]) -> str:
     return "\n".join(lines)
 
 
+def build_five_day_briefing(today: date, sessions: list[tuple[date, dict[str, str]]]) -> str:
+    labels = ("Сегодня", "Завтра", "Послезавтра", "День 4", "День 5")
+    lines = [f"🌙 *План саморазвития на 5 вечеров — {today:%d.%m}–{sessions[-1][0]:%d.%m}*"]
+    for label, (day, session) in zip(labels, sessions):
+        lines.extend(
+            [
+                "",
+                f"*{label}, {day:%d.%m} — {session['topic']}*",
+                f"_{session['title']}_",
+                session["task"],
+            ]
+        )
+        if session.get("material"):
+            lines.append(f"Материал: {session['material']}")
+    lines.extend(["", "*Правило:* в каждый вечер выбери только этот один блок на 30–45 минут."])
+    return "\n".join(lines)
+
+
 def main() -> None:
     today = datetime.now(MSK).date()
     history = load_history()
-    session = choose_session(today, history)
-    print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting evening briefing: {session['title']}", flush=True)
-    try:
-        briefing = build_ai_briefing(today, session, history)
-    except (requests.RequestException, RuntimeError) as exc:
-        print(f"AI edit failed, using structured fallback: {exc}", flush=True)
-        briefing = fallback_briefing(today, session)
+    sessions = choose_sessions(today, history)
+    if len(sessions) != 5:
+        raise SystemExit("Could not build a complete five-evening plan")
+    print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting five-evening plan", flush=True)
+    briefing = build_five_day_briefing(today, sessions)
 
     if not briefing:
         raise SystemExit("AI returned an empty evening briefing")
@@ -150,7 +186,7 @@ def main() -> None:
     print(f"  Sent: {ok}", flush=True)
     if not ok:
         raise SystemExit("Telegram delivery failed")
-    save_history(history, session, today)
+    save_history(history, sessions)
 
 
 if __name__ == "__main__":
