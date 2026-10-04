@@ -508,6 +508,13 @@ def is_deliverable_digest(digest: str) -> bool:
     return bool(re.search(r"• <b>[^<]+</b>", digest) and digest_links(digest))
 
 
+def uses_verified_sources(digest: str, candidates: list[dict[str, str]]) -> bool:
+    """Do not let the web-searching editor invent a credible-looking source."""
+    allowed_urls = {clean_url(item["url"]) for item in candidates}
+    links = {clean_url(url) for url in digest_links(digest)}
+    return bool(links) and links.issubset(allowed_urls)
+
+
 def normalize_links(digest: str) -> str:
     """Models occasionally return Markdown links despite an HTML-only Telegram contract."""
     digest = re.sub(r"^```(?:html)?\s*|\s*```$", "", digest.strip())
@@ -546,8 +553,8 @@ def main() -> None:
     digest = enforce_curated_skills(digest, candidates)
     digest = set_digest_date(digest, now)
     digest = telegram_safe_message(digest)
-    if not is_deliverable_digest(digest):
-        print("AI editor produced no concrete linked findings; skipping empty digest.")
+    if not is_deliverable_digest(digest) or not uses_verified_sources(digest, candidates):
+        print("AI editor produced empty or unverified findings; skipping this digest.")
         return
     send_telegram(digest)
     used_urls = digest_links(digest)

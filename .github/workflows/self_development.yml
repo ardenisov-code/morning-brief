@@ -2,8 +2,8 @@ name: Evening Self-Development Briefing
 
 on:
   schedule:
-    # 20:00 MSK = 17:00 UTC
-    - cron: "0 17 * * *"
+    # Sunday 20:00 MSK: one focused plan for the coming five evenings.
+    - cron: "0 17 * * 0"
   workflow_dispatch:
 
 permissions:
