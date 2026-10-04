@@ -44,6 +44,80 @@ CURATED_SKILLS = (
 )
 
 
+# The standard comes from the August editions the user explicitly rated highly:
+# a concrete practitioner's workflow, why it matters for Artem, and one honest
+# limitation.  These entries are source-checked editorial material, not model
+# generated "AI news".  New research is added here only after the same review.
+PROVEN_CASES = (
+    {
+        "track": "external",
+        "title": "Claude как память по аккаунту для длинных B2B-продаж",
+        "url": "https://np.reddit.com/r/sales/comments/1r6j849/how_are_you_actually_using_ai_to_make_your_work/",
+        "copy": "Загрузи историю встреч, писем и заметок по одному стратегическому клиенту. Перед встречей Claude собирает account brief: стейкхолдеры, незакрытые обещания, риски и следующий ход. Ограничение: результат силён только при дисциплине заметок, а не заменяет владельца сделки.",
+    },
+    {
+        "track": "external",
+        "title": "Claude + Garmin/Intervals как замкнутый цикл тренерских решений",
+        "url": "https://www.reddit.com/r/ClaudeAI/comments/1v3t1w5/does_anyone_have_a_workflow_for_getting_actual/",
+        "copy": "Свяжи неделю тренировок, сон, HRV и нагрузку в один структурированный отчёт, а Claude используй для проверки плана следующей сессии. Это рабочий второй мозг над твоими метриками, не медицинский совет: финальное решение остаётся за тобой и тренером.",
+    },
+    {
+        "track": "external",
+        "title": "Strategy deck: сначала storyline, потом слайды",
+        "url": "https://www.reddit.com/r/consulting/comments/1vri8fx/i_used_claude_and_chatgpt_as_i_would_an_associate/",
+        "copy": "Дай Claude исходники и попроси не презентацию, а hypothesis tree, storyline и outline до PowerPoint. Для C-level материала это сокращает путь к черновику, но финальные цифры, логика и визуал требуют человеческой проверки.",
+    },
+    {
+        "track": "external",
+        "title": "Конкурентная разведка в три независимые волны",
+        "url": "https://www.reddit.com/r/ClaudeAI/comments/1rptymv/competitive_analysis_with_claude_is_shallow_i/",
+        "copy": "Раздели разведку на GTM-сигналы, клиентские боли и изменения в найме/pricing/product, затем заставь Claude искать пересечения, а не писать один общий обзор. Первый тест — battlecard одного конкурента с тремя подтверждёнными сигналами; без регулярного обновления она быстро устареет.",
+    },
+    {
+        "track": "internal",
+        "title": "n8n-движок ранних сигналов оттока без ML-платформы",
+        "url": "https://www.reddit.com/r/n8n_on_server/comments/1nsq9ny/how_i_built_a_selflearning_churn_prediction_engine_in_n8n_that_saved_150k_arr_no_ml_platform_required/",
+        "copy": "Паттерн: deterministic scoring и алерты выделяют риск, а LLM только объясняет приоритет менеджеру. Первый пилот — 10–15 понятных признаков и человеческая проверка списка риска; это самоописанный кейс, поэтому цифры автора нельзя переносить как доказанный эффект.",
+    },
+    {
+        "track": "internal",
+        "title": "Local-first n8n + Ollama вместо облачной автоматизации",
+        "url": "https://www.reddit.com/r/better_claw/comments/1u6cqv1/n8n_ollama_a_local_model_selfhosted_automation/",
+        "copy": "Связка подходит для закрытой почты, классификации документов и регулярных отчётов, когда данные не могут уходить во внешний API. Начинать нужно с одного узкого повторяемого workflow; open-ended агент здесь будет хрупким и дорогим в поддержке.",
+    },
+    {
+        "track": "internal",
+        "title": "Надёжный local agent: сначала схема данных, затем LLM",
+        "url": "https://www.reddit.com/r/n8n/comments/1s56agg/help_local_llm_tool_calling_completely_broken_in/",
+        "copy": "Полевой урок для локального контура: JSON-выход, фиксированный контекст, валидация ключей и retry важнее размера модели. Примени это к извлечению полей из звонков или Excel: модель предлагает структуру, код валидирует, человек утверждает исключения.",
+    },
+    {
+        "track": "internal",
+        "title": "On-device подготовка Garmin-данных перед LLM",
+        "url": "https://www.reddit.com/r/GarminWatches/comments/1vkjdz1/garmin_put_ai_insights_behind_connect_so_i_built/",
+        "copy": "Сначала локально посчитай CTL/ATL/TSB, time-in-zone и recovery trend, и только затем отдавай короткий структурированный отчёт модели. Так health-данные остаются под контролем, а LLM получает уже подготовленную задачу вместо сырого экспорта.",
+    },
+    {
+        "track": "skill",
+        "title": "Anthropic skills для рабочих артефактов",
+        "url": "https://github.com/anthropics/skills",
+        "copy": "Пакет повторяемых инструкций для документов, таблиц и презентаций. Первый кандидат: закрепить единый skill для цепочки «исходные данные → проверяемая Excel-модель → executive deck → PDF».",
+    },
+    {
+        "track": "skill",
+        "title": "Knowledge management и session mining skills",
+        "url": "https://github.com/cajias/claude-skills",
+        "copy": "Скиллы для извлечения решений, обязательств и открытых вопросов из сессий. Первый кандидат: после каждой важной встречи обновлять Obsidian и создавать ровно один следующий шаг.",
+    },
+    {
+        "track": "skill",
+        "title": "Office skills: Excel, PowerPoint, Word и PDF",
+        "url": "https://github.com/claude-office-skills/skills",
+        "copy": "Инструкции для создания и проверки офисных артефактов. Первый кандидат: еженедельный P&L-ритуал, где LLM не просто пишет текст, а проверяет логику таблицы и собирает читаемые слайды.",
+    },
+)
+
+
 def send_telegram(message: str) -> None:
     response = requests.post(
         f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
@@ -319,6 +393,28 @@ def collect_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
     return candidates
 
 
+def build_proven_digest(now: datetime, seen_urls: list[str]) -> str:
+    """Render an editorially approved case library; never invent a daily feed."""
+    seen = set(seen_urls)
+    sections = (
+        ("external", "🅰️ <b>Внешние модели / автоматизация</b>"),
+        ("internal", "🅱️ <b>Внутренний контур / автоматизация</b>"),
+        ("skill", "🛠 <b>Скиллы для своей LLM</b>"),
+    )
+    lines = [f"💡 <b>AI-находки дня — {now:%d.%m.%Y}</b>"]
+    for track, heading in sections:
+        available = [item for item in PROVEN_CASES if item["track"] == track and item["url"] not in seen]
+        if not available:
+            continue
+        # Rotation prevents the first two catalogue entries from monopolising later releases.
+        start = now.timetuple().tm_yday % len(available)
+        selected = [available[(start + offset) % len(available)] for offset in range(min(2, len(available)))]
+        lines.extend(["", heading])
+        for item in selected:
+            lines.extend(["", f"• <b>{item['title']}</b>", item["copy"], f'<a href="{item["url"]}">источник</a>'])
+    return "\n".join(lines)
+
+
 def response_text(payload: dict) -> str:
     for item in payload.get("output", []):
         for content in item.get("content", []):
@@ -543,18 +639,10 @@ def main() -> None:
     now = datetime.now(MSK)
     today = now.strftime("%d.%m")
     history = load_seen_urls()
-    candidates = collect_candidates(set(history))
-
-    digest = rank_and_translate(today, candidates, history)
-    if not digest or digest == "SKIP":
-        print("No high-signal AI findings today; skipping instead of sending a raw feed.")
-        return
-
-    digest = enforce_curated_skills(digest, candidates)
-    digest = set_digest_date(digest, now)
+    digest = build_proven_digest(now, history)
     digest = telegram_safe_message(digest)
-    if not is_deliverable_digest(digest) or not uses_verified_sources(digest, candidates):
-        print("AI editor produced empty or unverified findings; skipping this digest.")
+    if not is_deliverable_digest(digest):
+        print("No unseen editorially approved findings; skipping this digest.")
         return
     send_telegram(digest)
     used_urls = digest_links(digest)
