@@ -41,6 +41,24 @@ CURATED_SKILLS = (
         "context": "A library of reusable SKILL.md packages including knowledge management, session mining and terminal workflows.",
         "digest_copy": "Скиллы для разбора рабочих сессий, фиксации решений и поддержания базы знаний. Первый сценарий: после созвона LLM извлекает решения и открытые вопросы, обновляет Obsidian и формирует следующий шаг.",
     },
+    {
+        "source": "coreyhaines31",
+        "track": "skill",
+        "title": "Marketing skills: growth, аналитика и позиционирование",
+        "url": "https://github.com/coreyhaines31/marketingskills",
+        "signal": "source-available business skill collection",
+        "context": "A reusable set of agent skills for growth, analytics, positioning and customer research.",
+        "digest_copy": "Набор прикладных скиллов для growth-диагностики, клиентских исследований и позиционирования. Первый сценарий: отдать LLM разбор воронки категории с требованием отделять факт, гипотезу и следующий эксперимент.",
+    },
+    {
+        "source": "NVIDIA",
+        "track": "skill",
+        "title": "SkillSpector: проверка скиллов перед установкой",
+        "url": "https://github.com/NVIDIA/SkillSpector",
+        "signal": "NVIDIA open-source skill security scanner",
+        "context": "An open-source scanner for prompt injection, data exfiltration and supply-chain risks in AI agent skills.",
+        "digest_copy": "Проверка сторонних скиллов на prompt injection, утечки и рискованные действия до подключения к рабочему агенту. Первый сценарий: прогонять через неё любые внешние instruction bundles перед доступом к корпоративным данным.",
+    },
 )
 
 
@@ -63,6 +81,36 @@ PROVEN_CASES = (
     },
     {
         "track": "external",
+        "title": "30-слайдовый deck: Claude для storyline, не для автодизайна",
+        "url": "https://www.reddit.com/r/powerpoint/comments/1vebpm0/i_spent_a_week_building_a_30slide_deck_with/",
+        "copy": "Практик неделю собирал 30-слайдовый deck и получил лучший эффект не от генерации слайдов, а от outline, тезисов и проверки связности story. Полезный режим для executive-материала: сначала логика и доказательства, потом PowerPoint; финальный визуал всё равно требует ручной работы.",
+    },
+    {
+        "track": "external",
+        "title": "Garmin/Strava → Claude: recovery review вместо слепого плана",
+        "url": "https://www.reddit.com/r/ClaudeAI/comments/1tb5nz9/i_built_an_mcp_server_that_connects_claude/",
+        "copy": "Собери readiness, HRV trend, нагрузку и последние активности в один утренний brief и попроси модель выявить конфликт между планом и восстановлением. Это полезный guardrail для self-coached режима, но не замена тренеру или медицинскому решению.",
+    },
+    {
+        "track": "external",
+        "title": "Recovery week по шести месяцам Garmin-данных",
+        "url": "https://www.reddit.com/r/running/comments/1qoezw4/training_decisions_based_on_hrvrecovery_data/",
+        "copy": "Бегун загрузил длинную историю тренировок и recovery-сигналов, чтобы не спорить с ощущениями на уровне одного дня, а увидеть тренд. Первый практический шаг: раз в неделю сравнивать HRV/RHR, сон и объём с базовой линией; качество вывода зависит от чистоты истории.",
+    },
+    {
+        "track": "external",
+        "title": "Еженедельный конкурентный агент с самопроверкой",
+        "url": "https://ja.reddit.com/r/PromptEngineering/comments/1tz5f6n/i_set_claude_up_as_an_agent_that_spies_on_my/",
+        "copy": "Кейс не про “читать новости”, а про detector структурных сдвигов: вакансии, pricing, партнёрства и изменения продукта. Важная деталь — отдельная проверка, что сбор источников не сломался, иначе пустой отчёт ошибочно выглядит как “на рынке ничего не произошло”.",
+    },
+    {
+        "track": "external",
+        "title": "Автокоррекция тренировочного плана по recovery-сигналам",
+        "url": "https://www.reddit.com/r/Garmin/comments/1vtevfi/my_new_fav_routine_autoadjusting_training_plan/",
+        "copy": "План дня пересматривается только когда фактическая нагрузка, сон и физиология уходят от личной базовой линии. Это хороший шаблон для твоего Garmin-бота: прозрачные пороги сначала, LLM — только для объяснения решения, а не для выдумывания нагрузки.",
+    },
+    {
+        "track": "external",
         "title": "Strategy deck: сначала storyline, потом слайды",
         "url": "https://www.reddit.com/r/consulting/comments/1vri8fx/i_used_claude_and_chatgpt_as_i_would_an_associate/",
         "copy": "Дай Claude исходники и попроси не презентацию, а hypothesis tree, storyline и outline до PowerPoint. Для C-level материала это сокращает путь к черновику, но финальные цифры, логика и визуал требуют человеческой проверки.",
@@ -78,6 +126,30 @@ PROVEN_CASES = (
         "title": "n8n-движок ранних сигналов оттока без ML-платформы",
         "url": "https://www.reddit.com/r/n8n_on_server/comments/1nsq9ny/how_i_built_a_selflearning_churn_prediction_engine_in_n8n_that_saved_150k_arr_no_ml_platform_required/",
         "copy": "Паттерн: deterministic scoring и алерты выделяют риск, а LLM только объясняет приоритет менеджеру. Первый пилот — 10–15 понятных признаков и человеческая проверка списка риска; это самоописанный кейс, поэтому цифры автора нельзя переносить как доказанный эффект.",
+    },
+    {
+        "track": "internal",
+        "title": "Qwen3 8B для n8n: структурированный JSON важнее лидерборда",
+        "url": "https://www.reddit.com/r/ollama/comments/1snuf08/best_ollama_model_for_n8n_workflows_rag_file/",
+        "copy": "В production-пайплайнах локальную модель выбирают не за красивый benchmark, а за стабильное извлечение полей и JSON. Для разборов звонков, Excel и маршрутизации писем это означает: низкая температура, узкая задача, schema validation и отдельная ветка для исключений.",
+    },
+    {
+        "track": "internal",
+        "title": "Сначала deterministic workflow, затем маленький LLM-слой",
+        "url": "https://www.reddit.com/r/n8n/comments/1s8m8uj/my_dumbest_automations_make_the_most_money_and_i/",
+        "copy": "Полевой антихайповый урок: простая автоматизация с явными правилами переживает сложного агента, который ошибается в трети случаев. Для retention-алертов и управленческой отчётности: ETL и scoring должны быть проверяемыми, а LLM — объяснять и приоритизировать.",
+    },
+    {
+        "track": "internal",
+        "title": "Локальная модель на слабом железе: честный нижний порог",
+        "url": "https://www.reddit.com/r/LocalLLaMA/comments/1ry0r5b/anyone_running_this_low_spec/",
+        "copy": "Практический выбор для компактного железа — не гнаться за огромной моделью, а брать достаточно маленькую для стабильного запуска и давать ей узкий контекст. Это подходит для triage почты, первичной классификации и сводок, но не заменяет сильную внешнюю модель в сложном reasoning.",
+    },
+    {
+        "track": "internal",
+        "title": "Local LLM в n8n: контекст и валидация важнее размера модели",
+        "url": "https://www.reddit.com/r/n8n/comments/1tvs7cz/best_local_model_to_run_n8n/",
+        "copy": "Для n8n-воркфлоу главный design rule: зафиксировать JSON-выход, контекст, retry и проверку ключей до выбора “самой умной” модели. Так локальный контур становится годным для отчётов и классификации закрытых данных, а не источником тихих ошибок.",
     },
     {
         "track": "internal",
@@ -114,6 +186,18 @@ PROVEN_CASES = (
         "title": "Office skills: Excel, PowerPoint, Word и PDF",
         "url": "https://github.com/claude-office-skills/skills",
         "copy": "Инструкции для создания и проверки офисных артефактов. Первый кандидат: еженедельный P&L-ритуал, где LLM не просто пишет текст, а проверяет логику таблицы и собирает читаемые слайды.",
+    },
+    {
+        "track": "skill",
+        "title": "Marketing skills: growth, аналитика и позиционирование",
+        "url": "https://github.com/coreyhaines31/marketingskills",
+        "copy": "Набор прикладных скиллов для growth-диагностики, клиентских исследований и позиционирования. Первый кандидат: разбор воронки категории, где LLM обязана отделить факт, гипотезу и следующий эксперимент.",
+    },
+    {
+        "track": "skill",
+        "title": "SkillSpector: проверка скиллов перед установкой",
+        "url": "https://github.com/NVIDIA/SkillSpector",
+        "copy": "Инструмент проверки сторонних скиллов на prompt injection, утечки и рискованные действия. Первый сценарий: сканировать внешний instruction bundle до того, как он увидит корпоративные данные или получит доступ к инструментам.",
     },
 )
 
@@ -394,7 +478,7 @@ def collect_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
 
 
 def build_proven_digest(now: datetime, seen_urls: list[str]) -> str:
-    """Render an editorially approved case library; never invent a daily feed."""
+    """Render a durable editorial library and never silently omit a scheduled issue."""
     seen = set(seen_urls)
     sections = (
         ("external", "🅰️ <b>Внешние модели / автоматизация</b>"),
@@ -403,12 +487,15 @@ def build_proven_digest(now: datetime, seen_urls: list[str]) -> str:
     )
     lines = [f"💡 <b>AI-находки дня — {now:%d.%m.%Y}</b>"]
     for track, heading in sections:
-        available = [item for item in PROVEN_CASES if item["track"] == track and item["url"] not in seen]
-        if not available:
-            continue
-        # Rotation prevents the first two catalogue entries from monopolising later releases.
-        start = now.timetuple().tm_yday % len(available)
-        selected = [available[(start + offset) % len(available)] for offset in range(min(2, len(available)))]
+        catalogue = [item for item in PROVEN_CASES if item["track"] == track]
+        fresh = [item for item in catalogue if item["url"] not in seen]
+        # New sources take priority. A curated top case may recur only after the
+        # catalogue is exhausted; silence is worse than a clearly useful revisit.
+        pool = fresh if len(fresh) >= 2 else [*fresh, *(item for item in catalogue if item["url"] in seen)]
+        if not pool:
+            raise RuntimeError(f"Editorial catalogue is empty for track {track}")
+        start = now.timetuple().tm_yday % len(pool)
+        selected = [pool[(start + offset) % len(pool)] for offset in range(min(2, len(pool)))]
         lines.extend(["", heading])
         for item in selected:
             lines.extend(["", f"• <b>{item['title']}</b>", item["copy"], f'<a href="{item["url"]}">источник</a>'])

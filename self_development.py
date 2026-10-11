@@ -199,14 +199,28 @@ def build_five_day_briefing(today: date, theme: str, sessions: list[tuple[date, 
     return "\n".join(lines)
 
 
+def build_daily_briefing(today: date, theme: str, session: dict[str, str]) -> str:
+    return "\n".join(
+        [
+            f"🌙 *Вечерний час — {today:%d.%m}*",
+            f"*Фокус недели:* {theme}",
+            f"*{session['title']}*",
+            "*30–45 минут*",
+            session["task"],
+            f"*Результат:* {session['done']}",
+            "*Правило:* не добавляй новую тему, пока не появился этот артефакт.",
+        ]
+    )
+
+
 def main() -> None:
     today = datetime.now(MSK).date()
     history = load_history()
     theme, sessions = choose_sessions(today, history)
     if len(sessions) != 5:
         raise SystemExit("Could not build a complete five-evening plan")
-    print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting five-evening plan", flush=True)
-    briefing = build_five_day_briefing(today, theme, sessions)
+    print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting daily self-development briefing", flush=True)
+    briefing = build_daily_briefing(today, theme, sessions[0][1])
 
     if not briefing:
         raise SystemExit("AI returned an empty evening briefing")
@@ -214,7 +228,7 @@ def main() -> None:
     print(f"  Sent: {ok}", flush=True)
     if not ok:
         raise SystemExit("Telegram delivery failed")
-    save_history(history, sessions)
+    save_history(history, [sessions[0]])
 
 
 if __name__ == "__main__":
