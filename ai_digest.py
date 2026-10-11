@@ -18,6 +18,11 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
 SEEN_PATH = Path("ai_seen.json")
 MSK = timezone(timedelta(hours=3))
 
+# One daily post, not a stream of separate coaching cards.  The user-approved
+# contract is exactly two high-signal items in every section: external models,
+# internal/private automation and reusable skills for a personal LLM.
+ITEMS_PER_SECTION = 2
+
 
 # These are hand-picked, inspectable instruction bundles.  Keep their copy and
 # canonical GitHub URLs deterministic: a generative editor must never rename a
@@ -500,10 +505,10 @@ def build_proven_digest(now: datetime, seen_urls: list[str]) -> str:
         # New sources take priority. A curated top case may recur only after the
         # catalogue is exhausted; silence is worse than a clearly useful revisit.
         pool = fresh if len(fresh) >= 2 else [*fresh, *(item for item in catalogue if item["url"] in seen)]
-        if not pool:
-            raise RuntimeError(f"Editorial catalogue is empty for track {track}")
+        if len(pool) < ITEMS_PER_SECTION:
+            raise RuntimeError(f"Editorial catalogue needs {ITEMS_PER_SECTION} items for track {track}")
         start = now.timetuple().tm_yday % len(pool)
-        selected = [pool[(start + offset) % len(pool)] for offset in range(min(2, len(pool)))]
+        selected = [pool[(start + offset) % len(pool)] for offset in range(ITEMS_PER_SECTION)]
         lines.extend(["", heading])
         for item in selected:
             lines.extend(["", f"• <b>{item['title']}</b>", item["copy"], f'<a href="{item["url"]}">источник</a>'])
