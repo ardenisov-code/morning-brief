@@ -6,9 +6,6 @@ import os
 import requests
 
 
-TOKEN = os.environ["TELEGRAM_TOKEN"]
-CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-
 SAMPLES = (
     """💡 <b>AI-находка: агент слушает все звонки, а не 2% выборки</b>
 
@@ -59,11 +56,13 @@ LLM хорошо находит кандидатов в проблему; око
 
 
 def main() -> None:
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    token = os.environ["TELEGRAM_TOKEN"]
+    chat_id = os.environ["TELEGRAM_CHAT_ID"]
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
     for index, sample in enumerate(SAMPLES, start=1):
         response = requests.post(
             url,
-            json={"chat_id": CHAT_ID, "text": sample, "parse_mode": "HTML"},
+            json={"chat_id": chat_id, "text": sample, "parse_mode": "HTML"},
             timeout=30,
         )
         response.raise_for_status()
