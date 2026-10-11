@@ -64,9 +64,17 @@ CURATED_SKILLS = (
 
 # The standard comes from the August editions the user explicitly rated highly:
 # a concrete practitioner's workflow, why it matters for Artem, and one honest
-# limitation.  These entries are source-checked editorial material, not model
-# generated "AI news".  New research is added here only after the same review.
+# limitation. The approved Vibecode example adds a second rule: prefer a real
+# working project or a reusable playbook with a demo/code link over model news.
+# These entries are source-checked editorial material, not model generated
+# "AI news". New research is added here only after the same review.
 PROVEN_CASES = (
+    {
+        "track": "external",
+        "title": "Дайджест вайбкодера: рабочие проекты и плейбуки недели",
+        "url": "https://t.me/thisisvibecode/127",
+        "copy": "Хороший формат для охоты за применимым: не релиз модели, а пачка работающих прототипов с демо, кодом или понятным playbook. В выпуске — локальный AI-инструмент, который пересобирает редактор документов, офлайн-альтернатива Lightroom и утилиты для Claude; для тебя это источник идей, что можно быстро проверить на личных и рабочих процессах.",
+    },
     {
         "track": "external",
         "title": "Claude как память по аккаунту для длинных B2B-продаж",
