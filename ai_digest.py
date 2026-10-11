@@ -622,7 +622,7 @@ GitHub и заранее проверенных практических кей�
 Что он добавляет собственной LLM и для какой задачи его стоит отдать ей первым.
 <a href="ТОЧНЫЙ_URL_ИЗ_КАНДИДАТОВ">источник</a>
 
-Покажи только непустые рубрики. Максимум два пункта на рубрику. Пиши естественно, конкретно и без слов
+Покажи все три рубрики. В каждой должно быть ровно два пункта. Пиши естественно, конкретно и без слов
 «революционный», «вау», «улучшает процессы», «новые горизонты». Не выдумывай факты, ссылки и результаты.
 Ссылки ОБЯЗАТЕЛЬНО оформляй только как HTML <a href="URL">источник</a>; не используй Markdown-ссылки,
 квадратные скобки или URL с utm_source=openai. Для рубрики «Скиллы» используй только URL репозитория из
@@ -649,7 +649,14 @@ GitHub и заранее проверенных практических кей�
     draft = normalize_links(response_text(response.json()).strip())
     if draft == "SKIP":
         return draft
-    return quality_gate_draft(draft, candidates)
+    # The quality pass is useful when it can preserve the full agreed six-item
+    # product.  It must not silently turn a complete current edition into an
+    # incomplete post and force a stale fallback.
+    gated = quality_gate_draft(draft, candidates)
+    if has_complete_editorial_contract(gated) and uses_verified_sources(gated, candidates):
+        return gated
+    print("Quality gate removed an item from the six-item contract; keeping source-verified draft.")
+    return draft
 
 
 def quality_gate_draft(draft: str, candidates: list[dict[str, str]]) -> str:
@@ -663,7 +670,8 @@ def quality_gate_draft(draft: str, candidates: list[dict[str, str]]) -> str:
    рабочих данных в Claude, ChatGPT, GPT-4, Gemini или другую внешнюю модель. Если этого явно нет, удалить.
 3. «Скиллы для своей LLM»: только URL из разрешённого списка GitHub-артефактов. Статья, workflow-template,
    use case или интеграция не считаются скиллом.
-Сохрани максимум два пункта на рубрику. Удали пустые рубрики. Ссылки только <a href="URL">источник</a>.
+Сохрани ровно два пункта в каждой из трёх рубрик. Если не можешь сохранить полный выпуск, верни ровно SKIP.
+Ссылки только <a href="URL">источник</a>.
 Не используй Markdown и не оборачивай ответ в ``` или ```html.
 Если ничего не осталось, верни ровно SKIP."""
     response = requests.post(
