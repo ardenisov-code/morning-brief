@@ -5,6 +5,12 @@ on:
     # Avoid heavily contended :00 schedule slot. Every day at 20:17 MSK.
     - cron: "17 17 * * *"
   workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Send a clearly labelled test without changing delivery history"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -28,6 +34,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
+          SELFDEV_TEST_MODE: ${{ inputs.test_mode || 'false' }}
         run: python3 self_development.py
 
       - name: Save completed topic history

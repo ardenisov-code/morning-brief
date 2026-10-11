@@ -19,6 +19,7 @@ TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+TEST_MODE = os.environ.get("SELFDEV_TEST_MODE", "false").lower() == "true"
 HISTORY_PATH = Path("evening_history.json")
 MSK = timezone(timedelta(hours=3))
 
@@ -220,9 +221,12 @@ def build_five_day_briefing(today: date, theme: str, sessions: list[tuple[date, 
 
 
 def build_daily_briefing(today: date, theme: str, session: dict[str, str]) -> str:
+    heading = f"🌙 *Вечерний час — {today:%d.%m}*"
+    if TEST_MODE:
+        heading = f"🧪 *Тест доставки — Вечерний час {today:%d.%m}*"
     return "\n".join(
         [
-            f"🌙 *Вечерний час — {today:%d.%m}*",
+            heading,
             f"*Фокус недели:* {theme}",
             f"*{session['title']}*",
             "*30–45 минут*",
@@ -236,7 +240,7 @@ def build_daily_briefing(today: date, theme: str, session: dict[str, str]) -> st
 def main() -> None:
     today = datetime.now(MSK).date()
     history = load_history()
-    if delivered_for_date(history, today):
+    if delivered_for_date(history, today) and not TEST_MODE:
         print(f"Self-development briefing for {today.isoformat()} already delivered; skipping duplicate.")
         return
     theme, session = choose_daily_session(today)
@@ -249,7 +253,10 @@ def main() -> None:
     print(f"  Sent: {ok}", flush=True)
     if not ok:
         raise SystemExit("Telegram delivery failed")
-    save_history(history, [(today, session)])
+    if not TEST_MODE:
+        save_history(history, [(today, session)])
+    else:
+        print("Test delivery completed without changing evening history.")
 
 
 if __name__ == "__main__":

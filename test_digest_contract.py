@@ -32,6 +32,10 @@ class SelfDevelopmentDeliveryTest(unittest.TestCase):
         _, tuesday_session = self_development.choose_daily_session(monday + timedelta(days=1))
         self.assertNotEqual(monday_session["title"], tuesday_session["title"])
 
+    def test_test_mode_does_not_change_delivery_decision(self):
+        today = date(2026, 10, 12)
+        self.assertTrue(self_development.delivered_for_date([{"date": today.isoformat()}], today))
+
 
 if __name__ == "__main__":
     unittest.main()
