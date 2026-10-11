@@ -2,8 +2,8 @@ name: Evening Self-Development Briefing
 
 on:
   schedule:
-    # Every day at 20:00 MSK: one concrete, artifact-driven evening task.
-    - cron: "0 17 * * *"
+    # Avoid heavily contended :00 schedule slot. Every day at 20:17 MSK.
+    - cron: "17 17 * * *"
   workflow_dispatch:
 
 permissions:

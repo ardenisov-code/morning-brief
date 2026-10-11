@@ -116,6 +116,21 @@ def choose_sessions(today: date, history: list[dict[str, str]], count: int = 5) 
     return sprint["theme"], sessions
 
 
+def choose_daily_session(today: date) -> tuple[str, dict[str, str]]:
+    """Advance through a weekly sprint by calendar day instead of replaying day one."""
+    sprint = WEEKLY_SPRINTS[today.isocalendar().week % len(WEEKLY_SPRINTS)]
+    weekday = today.weekday()
+    if weekday < len(sprint["days"]):
+        title, task, done = sprint["days"][weekday]
+        return sprint["theme"], {"topic": "Результат недели", "title": title, "task": task, "done": done}
+    return sprint["theme"], {
+        "topic": "Закрытие недели",
+        "title": "Короткий weekly review",
+        "task": "Открой результаты пяти вечерних задач. Оставь один работающий принцип, один незакрытый вопрос и один конкретный фокус на следующую неделю.",
+        "done": "Готово, когда в Obsidian есть три строки: оставить, проверить, сделать в понедельник.",
+    }
+
+
 def response_text(payload: dict) -> str:
     for item in payload.get("output", []):
         for content in item.get("content", []):
@@ -216,11 +231,9 @@ def build_daily_briefing(today: date, theme: str, session: dict[str, str]) -> st
 def main() -> None:
     today = datetime.now(MSK).date()
     history = load_history()
-    theme, sessions = choose_sessions(today, history)
-    if len(sessions) != 5:
-        raise SystemExit("Could not build a complete five-evening plan")
+    theme, session = choose_daily_session(today)
     print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting daily self-development briefing", flush=True)
-    briefing = build_daily_briefing(today, theme, sessions[0][1])
+    briefing = build_daily_briefing(today, theme, session)
 
     if not briefing:
         raise SystemExit("AI returned an empty evening briefing")
@@ -228,7 +241,7 @@ def main() -> None:
     print(f"  Sent: {ok}", flush=True)
     if not ok:
         raise SystemExit("Telegram delivery failed")
-    save_history(history, [sessions[0]])
+    save_history(history, [(today, session)])
 
 
 if __name__ == "__main__":
