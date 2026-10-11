@@ -1,0 +1,17 @@
+name: AI Digest Editorial Preview
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: pip install requests
+      - name: Send editorial samples
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python preview_ai_digest.py
