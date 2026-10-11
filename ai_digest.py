@@ -488,7 +488,11 @@ def collect_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
     catalogue.  The catalogue remains a fallback, but the daily ranking must
     first see fresh, independently scored sources.
     """
-    candidates = curated_personal_candidates(seen_urls)
+    # These are editorially reviewed evergreen cases.  They deliberately stay
+    # available after a previous appearance: “top” does not mean “published
+    # today”, and otherwise an exhausted seen-list can leave an entire rubric
+    # without any viable candidate.
+    candidates = curated_personal_candidates(set())
     try:
         candidates.extend(
             practical_hn_candidates(
