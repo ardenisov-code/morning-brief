@@ -84,6 +84,11 @@ def load_history() -> list[dict[str, str]]:
         return []
 
 
+def delivered_for_date(history: list[dict[str, str]], today: date) -> bool:
+    """Manual retries must not create a second evening assignment."""
+    return any(item.get("date") == today.isoformat() for item in history)
+
+
 def save_history(history: list[dict[str, str]], sessions: list[tuple[date, dict[str, str]]]) -> None:
     items = [
         *history,
@@ -231,6 +236,9 @@ def build_daily_briefing(today: date, theme: str, session: dict[str, str]) -> st
 def main() -> None:
     today = datetime.now(MSK).date()
     history = load_history()
+    if delivered_for_date(history, today):
+        print(f"Self-development briefing for {today.isoformat()} already delivered; skipping duplicate.")
+        return
     theme, session = choose_daily_session(today)
     print(f"[{datetime.now():%Y-%m-%d %H:%M}] Starting daily self-development briefing", flush=True)
     briefing = build_daily_briefing(today, theme, session)
