@@ -40,4 +40,8 @@ jobs:
           git config user.name "GitHub Actions"
           git add digests/ ai_seen.json || true
           git diff --cached --quiet || git commit -m "chore: ai digest $(date +%F)"
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            sleep $((attempt * 2))
+          done
+          exit 1
