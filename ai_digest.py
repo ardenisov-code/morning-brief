@@ -29,6 +29,89 @@ FRESH_DAYS = 14
 # canonical GitHub URLs deterministic: a generative editor must never rename a
 # repository or turn a GitHub URL into a non-existent domain.
 CURATED_SKILLS = (
+    # Starter set approved by Artem on 24.10.2026: well-known working MCP
+    # servers and skills with an obvious first task, not obscure repositories.
+    {
+        "source": "Microsoft",
+        "track": "skill",
+        "title": "Playwright MCP: агент сам проверяет сайт в браузере",
+        "url": "https://github.com/microsoft/playwright-mcp",
+        "signal": "widely used MCP server / skill",
+        "context": "Official Microsoft MCP server that lets an agent drive a real browser: open pages, click, fill forms, verify flows.",
+        "digest_copy": "Агент сам открывает твой сайт, жмёт кнопки, заполняет формы и проверяет, что всё работает. Первая задача: прогнать главный сценарий лендинга или бота после каждой правки.",
+    },
+    {
+        "source": "Google Chrome",
+        "track": "skill",
+        "title": "Chrome DevTools MCP: ошибки и тормоза сайта глазами агента",
+        "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+        "signal": "widely used MCP server / skill",
+        "context": "Official Chrome DevTools MCP server: console errors, network requests, performance traces for an agent.",
+        "digest_copy": "Агент видит панель разработчика Chrome: ошибки в консоли, что не загрузилось и почему страница тормозит. Первая задача: попросить найти причину медленной загрузки своей страницы.",
+    },
+    {
+        "source": "Framelink",
+        "track": "skill",
+        "title": "Figma MCP: макет без скриншотов",
+        "url": "https://github.com/GLips/Figma-Context-MCP",
+        "signal": "widely used MCP server / skill",
+        "context": "MCP server that gives coding agents Figma layout data: spacing, colors, fonts, components.",
+        "digest_copy": "Агент читает макет Figma напрямую: отступы, цвета, шрифты, компоненты — без скриншотов и «сделай примерно так». Первая задача: собрать страницу точно по макету.",
+    },
+    {
+        "source": "shadcn",
+        "track": "skill",
+        "title": "shadcn MCP: каталог готовых компонентов интерфейса",
+        "url": "https://ui.shadcn.com/docs/mcp",
+        "signal": "widely used MCP server / skill",
+        "context": "Official shadcn/ui MCP server: agent browses and installs ready UI components from registries.",
+        "digest_copy": "Агент берёт готовые кнопки, формы и таблицы из каталога shadcn вместо того, чтобы рисовать их с нуля. Первая задача: собрать админку или форму заявки из готовых блоков.",
+    },
+    {
+        "source": "Supabase",
+        "track": "skill",
+        "title": "Supabase MCP: агент видит твою базу данных",
+        "url": "https://github.com/supabase/mcp",
+        "signal": "widely used MCP server / skill",
+        "context": "Official Supabase MCP server: agent inspects tables, runs queries and manages the project.",
+        "digest_copy": "Агент видит, какие таблицы есть и что в них лежит, и сам пишет запросы. Первая задача: спросить словами, сколько новых пользователей пришло за неделю. Для боевых данных — только режим чтения.",
+    },
+    {
+        "source": "GitHub",
+        "track": "skill",
+        "title": "GitHub MCP: задачи, пулл-реквесты и упавшие сборки",
+        "url": "https://github.com/github/github-mcp-server",
+        "signal": "widely used MCP server / skill",
+        "context": "Official GitHub MCP server: issues, pull requests, Actions runs and logs.",
+        "digest_copy": "Агент сам заводит задачи, открывает пулл-реквесты и разбирается, почему не собралась сборка. Первая задача: «посмотри, почему упал последний запуск, и предложи исправление».",
+    },
+    {
+        "source": "Sentry",
+        "track": "skill",
+        "title": "Sentry MCP: ошибки живых пользователей сразу агенту",
+        "url": "https://docs.sentry.io/product/sentry-mcp/",
+        "signal": "widely used MCP server / skill",
+        "context": "Official Sentry MCP server: agent reads production errors and stack traces.",
+        "digest_copy": "Sentry собирает ошибки, на которые натыкаются живые пользователи, а агент идёт их чинить раньше, чем напишут в поддержку. Первая задача: разобрать самую частую ошибку за неделю.",
+    },
+    {
+        "source": "Firecrawl",
+        "track": "skill",
+        "title": "Firecrawl MCP: данные с любого сайта без копипаста",
+        "url": "https://github.com/firecrawl/firecrawl-mcp-server",
+        "signal": "widely used MCP server / skill",
+        "context": "Official Firecrawl MCP server: scrape and crawl websites into clean markdown/JSON.",
+        "digest_copy": "Агент вытаскивает каталоги, цены, документацию и лендинги конкурентов в чистый текст. Первая задача: собрать тарифы конкурентов в одну таблицу для разведки.",
+    },
+    {
+        "source": "Anthropic",
+        "track": "skill",
+        "title": "Официальные скиллы Anthropic: документы, таблицы, презентации",
+        "url": "https://github.com/anthropics/skills",
+        "signal": "widely used MCP server / skill",
+        "context": "Anthropic's official repository of Agent Skills (SKILL.md): docx, xlsx, pptx, pdf and more.",
+        "digest_copy": "Официальный набор скиллов от создателей Claude: Word, Excel, PowerPoint, PDF и другие. Первая задача: отдать агенту выгрузку и получить готовый управленческий отчёт в Excel.",
+    },
     {
         "source": "Claude Office Skills",
         "track": "skill",
@@ -279,7 +362,7 @@ def practical_hn_candidates(
                 or url in seen_urls
                 or title.lower() in seen_titles
                 or created_at < cutoff
-                or (points < 10 and comments < 5)
+                or (points < 30 and comments < 15)
                 or any(word in title.lower() for word in excluded)
             ):
                 continue
@@ -406,28 +489,39 @@ def huggingface_paper_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
 
 def github_skill_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
     """Find reusable, source-available skills rather than generic AI repositories."""
-    skills_since = (datetime.now(timezone.utc) - timedelta(days=60)).date().isoformat()
-    response = requests.get(
-        "https://api.github.com/search/repositories",
-        params={
-            # Sorting all-time stars returned the same handful of repositories
-            # every day; restrict to recently created ones to surface new skills.
-            "q": f"skills in:name,description created:>{skills_since} stars:>20",
-            "sort": "stars",
-            "order": "desc",
-            "per_page": 20,
-        },
-        headers={"Accept": "application/vnd.github+json"},
-        timeout=12,
-    )
-    response.raise_for_status()
+    # Popular (2000+ stars) and maintained in the last two weeks: the user wants
+    # tools like Playwright or Firecrawl MCP, not fresh 20-star experiments.
+    # The seen-list rotates the pool so the same repository is not sent twice.
+    active_since = (datetime.now(timezone.utc) - timedelta(days=14)).date().isoformat()
+    repos: list[dict] = []
+    for query in ("mcp in:name", "skills in:name"):
+        response = requests.get(
+            "https://api.github.com/search/repositories",
+            params={
+                "q": f"{query} stars:>2000 pushed:>{active_since}",
+                "sort": "stars",
+                "order": "desc",
+                "per_page": 30,
+            },
+            headers={"Accept": "application/vnd.github+json"},
+            timeout=12,
+        )
+        response.raise_for_status()
+        repos.extend(response.json().get("items", []))
     candidates: list[dict[str, str]] = []
-    for repo in response.json().get("items", []):
+    for repo in repos:
         name = repo.get("full_name") or ""
         description = repo.get("description") or ""
         url = repo.get("html_url") or ""
         text = f"{name} {description}".lower()
-        if not name or not url or url in seen_urls or "skill" not in text or "awesome" in text:
+        if (
+            not name
+            or not url
+            or url in seen_urls
+            or not ("skill" in text or "mcp" in text)
+            or "awesome" in text
+            or "list" in text
+        ):
             continue
         candidates.append(
             {
@@ -436,10 +530,10 @@ def github_skill_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
                 "title": name,
                 "url": url,
                 "signal": f"{repo.get('stargazers_count', 0)} GitHub stars",
-                "published": (repo.get("created_at") or "")[:10],
+                "published": (repo.get("pushed_at") or "")[:10],
                 "context": (
                     f"Description: {description}. Topics: {', '.join(repo.get('topics', [])[:12])}. "
-                    "Candidate must be rejected unless the linked repository exposes a reusable LLM skill or instruction artifact."
+                    "Candidate must be rejected unless the linked repository is a ready MCP server or reusable LLM skill."
                 ),
             }
         )
@@ -548,7 +642,12 @@ def collect_candidates(seen_urls: set[str]) -> list[dict[str, str]]:
         candidates.extend(github_skill_candidates(seen_urls)[:6])
     except requests.RequestException as exc:
         print(f"GitHub skills collection failed: {exc}")
-    return candidates
+    # A curated tool can also come back from the live GitHub search; keep the
+    # first (curated) copy so the editor sees each link once.
+    unique: dict[str, dict[str, str]] = {}
+    for item in candidates:
+        unique.setdefault(clean_url(item["url"]), item)
+    return list(unique.values())
 
 
 def build_proven_digest(now: datetime, seen_urls: list[str]) -> str:
@@ -610,8 +709,11 @@ GitHub и заранее проверенных практических кей�
 - internal: внутренний контур. Здесь нужны локальные/self-hosted практики: Ollama, n8n, локальные агенты,
   обработка закрытых данных без отправки этих данных во внешнюю LLM. Не углубляйся в веса, бенчмарки,
   квантизацию и железо.
-- skill: скилл для своей LLM. Включай только репозитории с реальным переиспользуемым SKILL.md, instruction
-  bundle или toolkit. Статья о том, как подключить n8n, не является скиллом.
+- skill: готовый MCP-сервер или скилл для своего агента. Эталон: Playwright MCP (агент сам проверяет сайт
+  в браузере), Chrome DevTools MCP, Figma MCP, GitHub MCP, Sentry MCP, Firecrawl MCP, Supabase MCP.
+  Выбирай известные, массово используемые инструменты от компаний или крупных проектов, которые можно
+  подключить за 10 минут. Пиши, что агент сможет делать сам, и одну первую задачу. Не бери
+  экспериментальные репозитории, списки «awesome», фреймворки для разработки MCP и статьи.
 
 Профиль Артема: управляет крупным P&L и командой в телекоме; ему полезны конкурентная разведка, аналитика,
 отчёты и презентации, подготовка к встречам и вакансиям, работа с клиентским опытом. Но он также активно
@@ -619,6 +721,8 @@ GitHub и заранее проверенных практических кей�
 интересуется личной эффективностью, обучением, путешествиями, бытовыми автоматизациями и персональной базой знаний.
 Во всём выпуске минимум треть пунктов должна быть не про работу, а про жизнь, здоровье/спорт, обучение,
 личную продуктивность или быт. Если есть сильный личный кейс, он приоритетнее третьего рабочего аналога.
+Не бери курьёзы и игрушки (запуск моделей на консолях, хаки железа), нишевые стартапы без понятной пользы
+для Артёма и анонсы YC-компаний. Лучше известный рабочий инструмент, чем экзотика.
 Исключи профессиональную разработку ПО, IDE, компиляторы, код-ревью, агентные фреймворки ради фреймворков.
 
 Ответь только валидным Telegram HTML на русском, без Markdown и без вводной воды.
@@ -641,7 +745,7 @@ GitHub и заранее проверенных практических кей�
 🛠 <b>Скиллы для своей LLM</b>
 
 • <b>Название скилла</b>
-Что он добавляет собственной LLM и для какой задачи его стоит отдать ей первым.
+Что агент сможет делать сам с этим инструментом и какую задачу дать ему первой.
 <a href="ТОЧНЫЙ_URL_ИЗ_КАНДИДАТОВ">источник</a>
 
 Покажи все три рубрики. В каждой должно быть ровно два пункта. Пиши естественно, конкретно и без слов
