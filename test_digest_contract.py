@@ -18,6 +18,11 @@ class AiDigestContractTest(unittest.TestCase):
         self.assertFalse(ai_digest.has_complete_editorial_contract(broken))
 
 
+    def test_curated_candidates_respect_seen_list(self):
+        seen = {item["url"] for item in ai_digest.curated_personal_candidates(set())}
+        self.assertEqual(ai_digest.curated_personal_candidates(seen), [])
+
+
 class SelfDevelopmentDeliveryTest(unittest.TestCase):
     def test_same_day_history_blocks_duplicate_delivery(self):
         today = date(2026, 10, 12)
