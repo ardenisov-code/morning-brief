@@ -75,6 +75,12 @@
     "https://github.com/supabase/mcp",
     "https://github.com/Zackriya-Solutions/meetily",
     "https://github.com/ChromeDevTools/chrome-devtools-mcp",
-    "https://github.com/n8n-io/self-hosted-ai-starter-kit"
+    "https://github.com/n8n-io/self-hosted-ai-starter-kit",
+    "https://github.com/GLips/Figma-Context-MCP",
+    "https://openai.com/index/introducing-chatgpt-agent/",
+    "https://github.com/ChatGPTNextWeb/NextChat",
+    "https://notebooklm.google/",
+    "https://github.com/ollama/ollama",
+    "https://github.com/github/github-mcp-server"
   ]
 }
